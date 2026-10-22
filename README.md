@@ -1,84 +1,92 @@
-# Universal Dataset Hub — repaired build 0.1.2
+# py-dataset-hub
 
-A Python library for normalizing local files, local directories, in-memory records, and optional hosted datasets into a unified interface for text, image, audio, video, tabular, and multimodal AI workflows.
+`py-dataset-hub` (imported in Python as `data_hub`) is a Python library for loading, normalizing, and preprocessing datasets across multiple modalities into PyTorch Datasets, DataLoaders, and NumPy arrays.
 
-This release fixes the 13 grouped defect areas documented in the Version 7 audit and adds regression tests. It is substantially tested, but finite tests do not prove the library bug-free. Live hosted-service integrations are not considered verified unless tested with their optional packages, credentials, and network access.
 
-## Install
+Installation
+------------
 
-From PyPI:
+Install from PyPI:
 
 ```bash
 pip install py-dataset-hub
 ```
 
-Or from local source:
+Optional dependencies for specific modalities:
 
 ```bash
-python -m pip install .
+pip install "py-dataset-hub[audio]"    # Audio decoding and resampling (scipy)
+pip install "py-dataset-hub[video]"    # Video frame extraction (opencv-python)
+pip install "py-dataset-hub[hf]"       # Hugging Face datasets integration
+pip install "py-dataset-hub[kaggle]"   # Kaggle dataset downloads
+pip install "py-dataset-hub[parquet]"  # Parquet support (pyarrow)
+pip install "py-dataset-hub[yaml]"     # YAML support (PyYAML)
+pip install "py-dataset-hub[all]"      # All optional dependencies
 ```
 
-Optional integrations:
+To verify installation:
 
 ```bash
-python -m pip install '.[audio]'    # SciPy-based audio decoding/resampling
-python -m pip install '.[video]'    # OpenCV video decoding
-python -m pip install '.[hf]'       # Hugging Face datasets connector
-python -m pip install '.[kaggle]'   # Kaggle download connector
-python -m pip install '.[parquet]'  # Parquet support via pyarrow
-python -m pip install '.[yaml]'     # YAML files (PyYAML)
-python -m pip install '.[all]'      # all optional adapters above
-python -m pip install '.[test]'     # test dependencies
+python -c "import data_hub as dh; print(dh.__version__)"
 ```
 
-## Detailed documentation
+To install from source:
 
-The full documentation is available in [`DOCUMENTATION.md`](DOCUMENTATION.md) and organized into individual guides under [`docs/`](docs/index.md). It covers architecture, schema/configuration, all supported source types, transformation APIs, PyTorch integration, media tensor shapes, errors and troubleshooting.
+```bash
+git clone https://github.com/anuj7iwari/dataset-hub.git
+cd dataset-hub
+pip install .
+```
 
-## Basic usage
+
+Features
+--------
+
+- Multi-modal: Unified `load()` interface for text, image, audio, video, tabular (CSV, TSV, Parquet), JSON, and YAML data.
+- Framework integration: Direct export to PyTorch `Dataset` and `DataLoader` with automatic batch collation, or conversion to NumPy arrays.
+- Streaming: Memory-efficient streaming for large files (JSONL, CSV, generators) without full materialization.
+- Pipelines: Built-in `map`, `filter`, `batch`, `shuffle`, and `split` operations.
+- Remote sources: Integration with Hugging Face Hub and Kaggle datasets.
+
+
+Usage
+-----
+
+Import the package as `data_hub`:
 
 ```python
 import data_hub as dh
 
-train = dh.load([
-    {"text": "This example is positive", "label": 1},
-    {"text": "This example is negative", "label": 0},
+# Load data from memory, files, or directories
+ds = dh.load([
+    {"text": "Sample text one", "label": 1},
+    {"text": "Sample text two", "label": 0},
 ])
-print(train.preview(2))
 
-local = dh.load("./data/train.csv", error_policy="strict")
-for item in local:
-    print(item.text, item.label)
+# Preview samples
+print(ds.preview(2))
 
-stream = dh.load("./data/train.jsonl", streaming=True, error_policy="report_and_skip")
-for item in stream:
-    print(item.text, item.label)
+# Convert to a PyTorch DataLoader
+loader = ds.to_dataloader(batch_size=2, shuffle=True)
+
+# Convert to NumPy arrays
+arrays = ds.to_numpy()
 ```
 
-## Error policies
 
-- `strict` (default): raise a contextual error on malformed records, missing referenced local media, or unreadable supported media when validation is performed.
-- `report_and_skip`: omit invalid rows and record `skipped_samples` and `parsing_errors` in dataset metadata.
-- `permissive`: preserve rows where feasible and attach warning information rather than claiming invalid media was successfully validated.
+Documentation
+-------------
 
-For lazy streams, row-level validation takes place during iteration. Consume the stream to discover all per-row errors. An unterminated quoted CSV record cannot be safely resynchronized in general; `report_and_skip` records the parse failure and ends iteration at that boundary after preserving earlier valid rows.
+Detailed guides and API references are available in `DOCUMENTATION.md` and the `docs/` directory:
 
-## Streaming contract and limits
-
-- JSON files whose top-level value is an array are decoded incrementally by element, retaining the input buffer and the current element rather than materializing the full array. JSON files with a top-level object/scalar are treated as a single record and must be parsed as that record.
-- YAML files whose top-level value is a sequence are constructed element-by-element. A top-level YAML mapping/scalar is one record and is constructed as a whole.
-- CSV/TSV streaming counts logical records, including quoted newlines. The length before consuming a source with a known size is an upper bound; after a complete pass, `num_samples` reflects valid yielded samples after parse/media skips.
-- A generator-backed in-memory source is not consumed during `load()`. Inferred modality is therefore deferred: the first consumed row may promote the dataset's modality (for example, to `multimodal`). For training, specify `modality="multimodal"`, `"image"`, `"audio"`, etc. explicitly when the source schema is known. The PyTorch iterable adapter reads the live inferred modality after finalizing each item.
-- `take(0)` consumes no source rows. Streaming generators are one-shot if their source is one-shot; do not expect a second full pass.
-- Image batches use CHW RGB tensors and video batches use TCHW RGB tensors. The collator validates channel/rank contracts, per-sample attention-mask alignment, and token-label alignment.
-- Dataset-derived eager collections own deep copies of their mutable `DatasetItem` instances and nested raw data. Filter predicates receive isolated copies.
-- `split()` requires finite ratios in [0, 1] that sum to 1.0 within a small tolerance. Streaming datasets must be materialized before random splitting.
+- [API Reference](docs/api-reference.md)
+- [Sources and Formats](docs/sources-and-formats.md)
+- [PyTorch Integration](docs/pytorch.md)
+- [Media Utilities](docs/media-utilities.md)
+- [Examples](docs/examples/README.md)
 
 
-## Known limitations
+License
+-------
 
-- Video codec support depends on OpenCV and codecs installed in the target runtime.
-- Large single JSON elements and top-level YAML mappings necessarily occupy memory for the duration of that element/document, even when array/sequence streaming is enabled.
-- Modality inference for an arbitrary one-shot generator cannot inspect future rows without consuming them. Specify modality explicitly if rows are heterogeneous or the first row may not represent the full schema.
-- The upstream license was not supplied with the source files; determine the correct license before public redistribution.
-
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
