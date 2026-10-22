@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "dataset-hub"
+name = "datasethub"
 version = "0.1.2"
 description = "Unified ingestion and preprocessing for text, image, audio, video, tabular, and multimodal datasets"
 readme = "README.md"
@@ -42,6 +42,11 @@ all = [
   "pyarrow>=14",
   "PyYAML>=6",
 ]
+
+[project.urls]
+Homepage = "https://github.com/anuj7iwari/dataset-hub"
+Repository = "https://github.com/anuj7iwari/dataset-hub"
+Documentation = "https://github.com/anuj7iwari/dataset-hub#readme"
 
 [tool.setuptools]
 include-package-data = true
