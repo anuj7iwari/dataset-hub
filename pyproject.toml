@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dataset-hub"
+version = "0.1.2"
+description = "Unified ingestion and preprocessing for text, image, audio, video, tabular, and multimodal datasets"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+dependencies = [
+  "numpy>=1.24",
+  "torch>=2.1",
+  "pydantic>=2.6",
+  "Pillow>=10.0",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+[project.optional-dependencies]
+audio = ["scipy>=1.10"]
+video = ["opencv-python>=4.8"]
+hf = ["datasets>=2.18"]
+kaggle = ["kagglehub>=0.2"]
+parquet = ["pyarrow>=14"]
+yaml = ["PyYAML>=6"]
+test = ["pytest>=8", "scipy>=1.10", "PyYAML>=6"]
+all = [
+  "scipy>=1.10",
+  "opencv-python>=4.8",
+  "datasets>=2.18",
+  "kagglehub>=0.2",
+  "pyarrow>=14",
+  "PyYAML>=6",
+]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["data_hub*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]

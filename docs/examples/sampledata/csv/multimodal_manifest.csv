@@ -1,0 +1,3 @@
+asset_id,image_path,caption,tag
+m1,../img/cats/cat1.png,"Reddish orange cat in profile",animal
+m2,../img/dogs/dog1.png,"Blue tinted dog sitting alert",animal

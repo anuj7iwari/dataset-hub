@@ -1,0 +1,20 @@
+[
+  {
+    "id": "inst_1",
+    "instruction": "Explain quantum computing briefly.",
+    "response": "It uses qubits and superposition.",
+    "domain": "physics"
+  },
+  {
+    "id": "inst_2",
+    "instruction": "What is Python list comprehension?",
+    "response": "A concise syntax for creating lists.",
+    "domain": "programming"
+  },
+  {
+    "id": "inst_3",
+    "instruction": "Write a haiku about rain.",
+    "response": "Soft drops touch the ground,\nEarth breathes in a gentle sigh,\nNature sings in peace.",
+    "domain": "poetry"
+  }
+]

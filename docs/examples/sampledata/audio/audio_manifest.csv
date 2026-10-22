@@ -1,0 +1,3 @@
+id,audio_file,transcript,speaker
+a1,speech/speech1.wav,hello world,speaker_a
+a2,music/note1.wav,orchestral tone,speaker_b

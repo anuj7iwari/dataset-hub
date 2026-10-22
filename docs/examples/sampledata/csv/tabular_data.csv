@@ -1,0 +1,5 @@
+house_id,sqft,bedrooms,city,price
+h1,1450,3,Seattle,650000
+h2,850,1,Portland,380000
+h3,2100,4,Seattle,920000
+h4,1200,2,Austin,450000
