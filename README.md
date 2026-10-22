@@ -6,7 +6,13 @@ This release fixes the 13 grouped defect areas documented in the Version 7 audit
 
 ## Install
 
-Requires Python 3.10 or later. From this directory:
+From PyPI:
+
+```bash
+pip install py-dataset-hub
+```
+
+Or from local source:
 
 ```bash
 python -m pip install .

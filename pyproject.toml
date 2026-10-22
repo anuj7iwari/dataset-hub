@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "datasethub"
+name = "py-dataset-hub"
 version = "0.1.2"
 description = "Unified ingestion and preprocessing for text, image, audio, video, tabular, and multimodal datasets"
 readme = "README.md"
